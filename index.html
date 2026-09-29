@@ -110,14 +110,20 @@
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
                     </div>
 
-                    <!-- Image URL -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">URL รูปภาพประกอบ <span class="text-red-500">*</span></label>
-                        <input type="url" id="input-image" required placeholder="https://example.com/image.jpg" 
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
-                    </div>
-
-                    <!-- Detail -->
+                    <!-- Image Upload -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+                รูปภาพประกอบ <span class="text-red-500">*</span>
+            </label>
+            <input type="file"
+                   id="input-image"
+                   accept="image/*"
+                   required
+                   class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+            <p class="text-xs text-slate-500 mt-1">
+                เลือกรูปภาพจากเครื่องของคุณ
+            </p>
+        </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียดข่าว <span class="text-red-500">*</span></label>
                         <textarea id="input-detail" rows="5" required placeholder="ระบุเนื้อหาและรายละเอียดของข่าวสาร..." 
@@ -368,39 +374,74 @@
 
             const btnSubmit = document.getElementById('btn-submit');
             const originalBtnText = btnSubmit.innerHTML;
+            const imageInput = document.getElementById('input-image');
+            const imageFile = imageInput.files[0];
 
-            const payload = {
-                title: document.getElementById('input-title').value.trim(),
-                image_url: document.getElementById('input-image').value.trim(),
-                detail: document.getElementById('input-detail').value.trim(),
-                source_link: document.getElementById('input-source').value.trim()
-            };
+            if (!imageFile) {
+                alert("กรุณาเลือกรูปภาพประกอบ");
+                return;
+            }
+
+            if (!imageFile.type.startsWith('image/')) {
+                alert("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+                return;
+            }
 
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังบันทึกข้อมูล...</span>`;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังอัปโหลดและบันทึกข้อมูล...</span>`;
 
             try {
-                await fetch(API_URL, {
+                const dataUrl = await fileToDataURL(imageFile);
+                const base64Data = dataUrl.split(',')[1];
+
+                const payload = {
+                    title: document.getElementById('input-title').value.trim(),
+                    detail: document.getElementById('input-detail').value.trim(),
+                    source_link: document.getElementById('input-source').value.trim(),
+                    image_base64: base64Data,
+                    image_name: imageFile.name,
+                    image_type: imageFile.type,
+                    imageData: base64Data,
+                    imageName: imageFile.name,
+                    mimeType: imageFile.type
+                };
+
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8',
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(payload),
-                    redirect: 'follow' // เพิ่มบรรทัดนี้เพื่อรองรับการ Redirect ของ Google
+                    redirect: 'follow'
                 });
 
-                alert("บันทึกข่าวเรียบร้อยแล้ว!");
+                const result = await response.json();
+
+                if (result.status && result.status !== "success") {
+                    throw new Error(result.message || "ไม่สามารถบันทึกข่าวได้");
+                }
+
+                alert("บันทึกข่าวและอัปโหลดรูปภาพเรียบร้อยแล้ว!");
                 document.getElementById('news-form').reset();
                 switchView('dashboard');
-                fetchNews();
+                await fetchNews();
 
             } catch (error) {
                 console.error("Error submitting news:", error);
-                alert("เกิดข้อผิดพลาดในการบันทึกข่าว กรุณาลองใหม่อีกครั้ง");
+                alert("เกิดข้อผิดพลาดในการบันทึกข่าว: " + error.message);
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = originalBtnText;
             }
+        }
+
+        function fileToDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("ไม่สามารถอ่านไฟล์รูปภาพได้"));
+                reader.readAsDataURL(file);
+            });
         }
 
         // =========================================================

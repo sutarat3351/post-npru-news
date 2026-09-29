@@ -133,7 +133,7 @@
 
                     <!-- Author Info (Fixed) -->
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-xs text-slate-600">
-                        <span>ผู้โพสต์ระบบ: <strong>Suksawat Saelim</strong></span>
+                        <span>ผู้โพสต์ระบบ: <strong>Sutarat Chaonafang</strong></span>
                         <i class="fa-solid fa-user-check text-blue-500"></i>
                     </div>
 
@@ -213,7 +213,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzwm5B5L96cEiY6JYG_zH02chaI8BbSaABCMbGzKYbYH5OCX3Fx2uSrEejvA59kd2mq/exec";
 
         // กำหนดรหัสผ่านสำหรับเข้าหน้า Admin
-        const ADMIN_PASSWORD = "senpru1234";
+        const ADMIN_PASSWORD = "sutarat";
 
         // Global State
         let allNewsData = [];
@@ -330,7 +330,7 @@
                             <div class="flex items-center justify-between text-xs mb-2.5">
                                 <div class="flex items-center gap-1.5 text-blue-600 font-medium">
                                     <i class="fa-solid fa-circle-user"></i>
-                                    <span>${item.author || 'Suksawat Saelim'}</span>
+                                    <span>${item.author || 'Sutarat Chaonafang'}</span>
                                 </div>
                                 <div class="flex items-center gap-1 text-slate-400">
                                     <i class="fa-regular fa-clock"></i>
@@ -413,7 +413,7 @@
             document.getElementById('modal-image').src = item.image_url || 'https://via.placeholder.com/600x400?text=No+Image';
             document.getElementById('modal-title').textContent = item.title;
             document.getElementById('modal-detail').textContent = item.detail;
-            document.getElementById('modal-author').textContent = item.author || 'Suksawat Saelim';
+            document.getElementById('modal-author').textContent = item.author || 'Sutarat Chaonafang';
             document.getElementById('modal-time').textContent = item.timestamp || 'ไม่ระบุเวลา';
 
             const sourceLink = item.source_link || '#';
